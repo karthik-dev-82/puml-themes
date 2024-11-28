@@ -1,0 +1,150 @@
+@startuml class-example
+
+' Theme functions
+!function $primaryColor()
+    !return "#FFFFFF"
+!endfunction
+
+!function $secondaryColor()
+    !return "#F0F8FF"
+!endfunction
+
+!function $backgroundColor()
+    !return "#FEFEFE"
+!endfunction
+
+!function $borderColor()
+    !return "black"
+!endfunction
+
+!function $fontColor()
+    !return "black"
+!endfunction
+
+!function $noteColor()
+    !return "#A9A9A9"
+!endfunction
+
+!function $boxColor1()
+    !return "LightBlue"
+!endfunction
+
+!function $boxColor2()
+    !return "LightGreen"
+!endfunction
+
+' Theme settings for class diagram
+skinparam backgroundColor $backgroundColor()
+skinparam handwritten false
+skinparam ArrowColor $borderColor()
+skinparam DefaultFontColor $fontColor()
+skinparam DefaultFontSize 12
+
+skinparam class {
+    BackgroundColor $primaryColor()
+    BorderColor $borderColor()
+    AttributeFontColor $fontColor()
+    AttributeIconSize 12
+}
+
+skinparam interface {
+    BackgroundColor $primaryColor()
+    BorderColor $borderColor()
+}
+
+skinparam note {
+    BackgroundColor $primaryColor()
+    BorderColor $noteColor()
+    TextColor $fontColor()
+}
+
+skinparam package {
+    BackgroundColor $primaryColor()
+    BorderColor $borderColor()
+}
+
+' Class Diagram starts here
+package ECommerceSystem {
+    abstract class User {
+        - id: UUID
+        - email: String
+        - passwordHash: String
+        + authenticate(): bool
+        + updateProfile(): void
+    }
+
+    class Customer {
+        - shippingAddress: Address
+        - paymentMethods: List<PaymentMethod>
+        + placeOrder(cart: Cart): Order
+        + viewOrderHistory(): List<Order>
+    }
+
+    class Admin {
+        - accessLevel: AccessLevel
+        + manageProducts(): void
+        + viewAnalytics(): Dashboard
+    }
+
+    class Order {
+        - orderId: UUID
+        - items: List<OrderItem>
+        - status: OrderStatus
+        - createdAt: DateTime
+        + calculateTotal(): Money
+        + updateStatus(status: OrderStatus): void
+    }
+
+    class OrderItem {
+        - product: Product
+        - quantity: int
+        - price: Money
+        + calculateSubtotal(): Money
+    }
+
+    class Product {
+        - id: UUID
+        - name: String
+        - price: Money
+        - stock: int
+        + updateStock(quantity: int): void
+        + isAvailable(): bool
+    }
+
+    enum OrderStatus {
+        PENDING
+        CONFIRMED
+        SHIPPED
+        DELIVERED
+        CANCELLED
+    }
+
+    interface PaymentProcessor {
+        + processPayment(amount: Money): bool
+        + refund(orderId: UUID): bool
+    }
+
+    class CreditCardProcessor {
+        - apiKey: String
+        + processPayment(amount: Money): bool
+        + refund(orderId: UUID): bool
+    }
+
+    class PayPalProcessor {
+        - clientId: String
+        - secretKey: String
+        + processPayment(amount: Money): bool
+        + refund(orderId: UUID): bool
+    }
+}
+
+User <|-- Customer
+User <|-- Admin
+Customer "1" *-- "many" Order
+Order "1" *-- "many" OrderItem
+OrderItem "many" -- "1" Product
+Order -- OrderStatus
+PaymentProcessor <|.. CreditCardProcessor
+PaymentProcessor <|.. PayPalProcessor
+
+@enduml

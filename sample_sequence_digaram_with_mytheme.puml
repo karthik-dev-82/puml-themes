@@ -1,0 +1,132 @@
+@startuml sequence-example
+
+' Theme functions
+!function $primaryColor()
+    !return "#FFFFFF"
+!endfunction
+
+!function $secondaryColor()
+    !return "#F0F8FF"
+!endfunction
+
+!function $backgroundColor()
+    !return "#FEFEFE"
+!endfunction
+
+!function $borderColor()
+    !return "black"
+!endfunction
+
+!function $fontColor()
+    !return "black"
+!endfunction
+
+!function $noteColor()
+    !return "#A9A9A9"
+!endfunction
+
+!function $boxColor1()
+    !return "LightBlue"
+!endfunction
+
+!function $boxColor2()
+    !return "LightGreen"
+!endfunction
+
+' Theme settings for sequence diagram
+skinparam backgroundColor $backgroundColor()
+skinparam handwritten false
+skinparam ParticipantPadding 20
+skinparam BoxPadding 10
+skinparam SequenceMessageAlign center
+skinparam SequenceGroupBodyBackgroundColor $secondaryColor()
+skinparam ArrowColor $borderColor()
+skinparam ActorBorderColor $borderColor()
+skinparam LifeLineBorderColor $borderColor()
+skinparam ParticipantBorderColor $borderColor()
+skinparam ParticipantFontColor $fontColor()
+skinparam ActorFontColor $fontColor()
+
+skinparam participant {
+    BackgroundColor $primaryColor()
+}
+
+skinparam actor {
+    BackgroundColor $primaryColor()
+}
+
+skinparam note {
+    BackgroundColor $primaryColor()
+    BorderColor $noteColor()
+    TextColor $fontColor()
+}
+
+skinparam box {
+    BackgroundColor $boxColor1()
+    BorderColor $borderColor()
+}
+
+' Sequence Diagram starts here
+box "Frontend" #LightBlue
+    participant "Web UI" as UI
+    participant "Auth Service" as Auth
+end box
+
+box "Backend" #LightGreen
+    participant "API Gateway" as API
+    participant "User Service" as UserSvc
+    participant "Payment Service" as PaySvc
+    database "User DB" as DB
+end box
+
+== Authentication ==
+UI -> Auth: Login Request
+activate Auth
+Auth -> API: Validate Credentials
+activate API
+API -> UserSvc: Get User Details
+activate UserSvc
+UserSvc -> DB: Query User
+activate DB
+DB --> UserSvc: User Data
+deactivate DB
+UserSvc --> API: User Details
+deactivate UserSvc
+API --> Auth: Validation Result
+deactivate API
+
+alt#Gold #LightGreen Successful Login
+    Auth --> UI: Generate JWT Token
+else #Pink Failed Login
+    Auth --> UI: Invalid Credentials
+end
+deactivate Auth
+
+== Purchase Process ==
+UI -> API: Purchase Request
+activate API
+note right
+    Include product details
+    and payment info
+end note
+
+group Transaction Processing
+    API -> PaySvc: Process Payment
+    activate PaySvc
+    PaySvc --> API: Payment Confirmed
+    deactivate PaySvc
+    
+    API -> UserSvc: Update User History
+    activate UserSvc
+    UserSvc -> DB: Store Transaction
+    activate DB
+    DB --> UserSvc: Confirmation
+    deactivate DB
+    UserSvc --> API: Update Complete
+    deactivate UserSvc
+end
+
+API --> UI: Purchase Confirmation
+deactivate API
+
+@enduml
