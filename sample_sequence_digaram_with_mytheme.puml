@@ -33,6 +33,14 @@
     !return "LightGreen"
 !endfunction
 
+!function $boxColor3()
+    !return "Salmon"
+!endfunction
+
+!function $boxColor4()
+    !return "LightYellow"
+!endfunction
+
 ' Theme settings for sequence diagram
 skinparam backgroundColor $backgroundColor()
 skinparam handwritten false
